@@ -1,19 +1,18 @@
 use anyhow::Result;
 use sqlx::PgPool;
-use crate::models::Todo;
+use crate::data::models::Todo;
 
 pub async fn create_todo(pool: &PgPool, new_todo: Todo) -> Result<Todo> {
-    let todo = sqlx::query_as!(
-        Todo,
+    let todo = sqlx::query_as::<_, Todo>(
         r#"
         INSERT INTO tasks (id, title, completed)
         VALUES ($1, $2, $3)
         RETURNING id, title, completed
-        "#,
-        new_todo.id,
-        new_todo.title,
-        new_todo.completed
+        "#
     )
+        .bind(new_todo.id)
+        .bind(new_todo.title)
+        .bind(new_todo.completed)
         .fetch_one(pool)
         .await?;
 
@@ -21,8 +20,7 @@ pub async fn create_todo(pool: &PgPool, new_todo: Todo) -> Result<Todo> {
 }
 
 pub async fn get_todos(pool: &PgPool) -> Result<Vec<Todo>> {
-    let todos = sqlx::query_as!(
-        Todo,
+    let todos = sqlx::query_as::<_, Todo>(
         r#"
         SELECT id, title, completed
         FROM tasks
@@ -36,13 +34,13 @@ pub async fn get_todos(pool: &PgPool) -> Result<Vec<Todo>> {
 }
 
 pub async fn delete_todo(pool: &PgPool, todo_id: String) -> Result<u64> {
-    let deleted = sqlx::query!(
+    let deleted = sqlx::query(
         r#"
         DELETE FROM tasks
         WHERE id = $1
-        "#,
-        todo_id
+        "#
     )
+        .bind(todo_id)
         .execute(pool)
         .await?
         .rows_affected();

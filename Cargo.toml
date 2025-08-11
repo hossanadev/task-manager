@@ -10,4 +10,3 @@ dotenvy = "0.15.7"
 uuid = {version = "1.15.1", features = ["v4", "serde"]}
 anyhow = "1.0.96"
 sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-native-tls", "macros", "migrate"] }
-tokio = { version = "1.47.1", features = ["full"] }

@@ -1,9 +1,9 @@
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use uuid::Uuid;
 use crate::database::DbPool;
-use crate::models::Todo;
-use crate::repository;
-use crate::response::CustomResponse;
+use crate::data::models::Todo;
+use crate::data::repository;
+use crate::dto::response::CustomResponse;
 
 pub fn init_todo_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(create_todo)
