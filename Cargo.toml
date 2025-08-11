@@ -1,12 +1,13 @@
 [package]
-name = "rust-todo"
+name = "task-list"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 actix-web = "4.9.0"
 serde = {version = "1", features = ["derive"]}
-diesel = {version = "2.2.7", features = ["postgres", "r2d2", "uuid", "serde_json"]}
 dotenvy = "0.15.7"
 uuid = {version = "1.15.1", features = ["v4", "serde"]}
 anyhow = "1.0.96"
+sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-native-tls", "macros", "migrate"] }
+tokio = { version = "1.47.1", features = ["full"] }

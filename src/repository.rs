@@ -1,30 +1,51 @@
-use diesel::prelude::*;
 use anyhow::Result;
-use uuid::Uuid;
-use crate::models::{Todo};
-use crate::database::DbPool;
-use crate::schema::todos::dsl::*;
+use sqlx::PgPool;
+use crate::models::Todo;
 
-pub fn create_todo(pool: &DbPool, new_todo: Todo) -> Result<Todo> {
-    let mut conn = pool.get()?;
-    let todo = Todo {
-        id: Uuid::new_v4(),
-        title: new_todo.title,
-        completed: new_todo.completed,
-    };
+pub async fn create_todo(pool: &PgPool, new_todo: Todo) -> Result<Todo> {
+    let todo = sqlx::query_as!(
+        Todo,
+        r#"
+        INSERT INTO tasks (id, title, completed)
+        VALUES ($1, $2, $3)
+        RETURNING id, title, completed
+        "#,
+        new_todo.id,
+        new_todo.title,
+        new_todo.completed
+    )
+        .fetch_one(pool)
+        .await?;
 
-    diesel::insert_into(todos).values(&todo).execute(&mut conn)?;
     Ok(todo)
 }
 
-pub fn get_todos(pool: &DbPool) -> Result<Vec<Todo>> {
-    let mut conn = pool.get()?;
-    let results = todos.load::<Todo>(&mut conn)?;
-    Ok(results)
+pub async fn get_todos(pool: &PgPool) -> Result<Vec<Todo>> {
+    let todos = sqlx::query_as!(
+        Todo,
+        r#"
+        SELECT id, title, completed
+        FROM tasks
+        ORDER BY id
+        "#
+    )
+        .fetch_all(pool)
+        .await?;
+
+    Ok(todos)
 }
 
-pub fn delete_todo(pool: &DbPool, todo_id: Uuid) -> Result<usize> {
-    let mut conn = pool.get()?;
-    let deleted = diesel::delete(todos.filter(id.eq(todo_id))).execute(&mut conn)?;
+pub async fn delete_todo(pool: &PgPool, todo_id: String) -> Result<u64> {
+    let deleted = sqlx::query!(
+        r#"
+        DELETE FROM tasks
+        WHERE id = $1
+        "#,
+        todo_id
+    )
+        .execute(pool)
+        .await?
+        .rows_affected();
+
     Ok(deleted)
 }

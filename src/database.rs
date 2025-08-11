@@ -1,11 +1,13 @@
 use anyhow::Result;
-use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::PgConnection;
+use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
 
-pub type DbPool = Pool<ConnectionManager<PgConnection>>;
+pub type DbPool = PgPool;
 
-pub fn init_pool(database_url: &str) -> Result<DbPool> {
-    let manager = ConnectionManager::<PgConnection>::new(database_url);
-    let pool = Pool::builder().build(manager)?;
+pub async fn init_pool(database_url: &str) -> Result<DbPool> {
+    let pool = PgPoolOptions::new()
+        .max_connections(5) // you can adjust this
+        .connect(database_url)
+        .await?;
     Ok(pool)
 }
