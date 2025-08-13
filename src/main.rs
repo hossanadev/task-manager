@@ -1,29 +1,28 @@
 use actix_web::{web, App, HttpServer};
-use dotenvy::dotenv;
 use std::env;
 use crate::data::database;
 
-mod route;
+mod controller;
 mod data;
 mod dto;
+mod constant;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
-
     let database_url = env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set");
+        .expect(constant::error_message::DATABASE_URL_CONNECTION_ERROR_MESSAGE);
 
     let pool = database::init_pool(&database_url)
         .await
-        .expect("Failed to create pool");
+        .expect(constant::error_message::DATABASE_POOL_CREATION_ERROR_MESSAGE);
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
-            .configure(route::init_routes)
+            .configure(controller::init_routes)
     })
-        .bind("127.0.0.1:8080")?
+        .bind(env::var("IP").unwrap().to_string() + ":" +
+            env::var("PORT").unwrap().as_str())?
         .run()
         .await
 }

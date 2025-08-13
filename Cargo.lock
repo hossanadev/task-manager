@@ -1979,12 +1979,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "task-list"
+name = "task-manager"
 version = "0.1.0"
 dependencies = [
  "actix-web",
  "anyhow",
- "dotenvy",
  "serde",
  "sqlx",
  "uuid",
