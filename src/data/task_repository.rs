@@ -17,6 +17,21 @@ pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
     Ok(task)
 }
 
+pub async fn get_task_by_id(pool: &PgPool, task_id: String) -> Result<Option<Task>> {
+    let task = sqlx::query_as::<_, Task>(
+        r#"
+        SELECT id, title, status
+        FROM tasks
+        WHERE id = $1
+        "#
+    )
+        .bind(task_id)
+        .fetch_optional(pool)
+        .await?;
+
+    Ok(task)
+}
+
 pub async fn get_tasks(pool: &PgPool) -> Result<Vec<Task>> {
     let tasks = sqlx::query_as::<_, Task>(
         r#"
