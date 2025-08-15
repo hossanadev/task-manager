@@ -5,13 +5,12 @@ use crate::data::task_model::Task;
 pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
     let task = sqlx::query_as::<_, Task>(
         r#"
-        INSERT INTO tasks (title, completed)
-        VALUES ($1, $2)
-        RETURNING id, title, completed
+        INSERT INTO tasks (title)
+        VALUES ($1)
+        RETURNING id, title, status
         "#
     )
         .bind(new_task.title)
-        .bind(new_task.completed)
         .fetch_one(pool)
         .await?;
 
@@ -21,7 +20,7 @@ pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
 pub async fn get_tasks(pool: &PgPool) -> Result<Vec<Task>> {
     let tasks = sqlx::query_as::<_, Task>(
         r#"
-        SELECT id, title, completed
+        SELECT id, title, status
         FROM tasks
         ORDER BY id
         "#
