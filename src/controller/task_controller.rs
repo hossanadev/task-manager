@@ -17,6 +17,15 @@ pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
 
 #[post("")]
 async fn create_task(pool: web::Data<DbPool>, data: web::Json<Task>) -> impl Responder {
+    match task_repository::exists_by_task_title(&pool, &data).await {
+        Ok(true) => {
+            return HttpResponse::Conflict().json(CustomResponse::<()>::new(409, "Task with this title already exists", None));
+        }
+        Ok(false) => {}
+        Err(_) => {
+            return HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None));
+        }
+    }
     match task_repository::create_task(&pool, data.into_inner()).await {
         Ok(task) => HttpResponse::Created().json(CustomResponse::new(201, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None)),
