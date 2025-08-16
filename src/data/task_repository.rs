@@ -62,6 +62,22 @@ pub async fn update_task_by_id(pool: &PgPool, new_task: Task, task_id: String) -
     Ok(updated_task)
 }
 
+pub async fn update_status_by_task_id(pool: &PgPool, status: String, task_id: String) -> Result<Option<Task>> {
+    let updated_task = sqlx::query_as::<_, Task>(
+        r#"
+          UPDATE tasks SET status = $1
+          WHERE id = $2
+          RETURNING id, title, status
+        "#
+    )
+        .bind(status)
+        .bind(task_id)
+        .fetch_optional(pool)
+        .await?;
+
+    Ok(updated_task)
+}
+
 pub async fn delete_task(pool: &PgPool, task_id: String) -> Result<u64> {
     let deleted = sqlx::query(
         r#"
