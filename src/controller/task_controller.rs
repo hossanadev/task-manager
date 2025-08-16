@@ -50,8 +50,7 @@ async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl R
 }
 
 #[put("{id}")]
-async fn update_task(pool: web::Data<DbPool>, mut data: web::Json<Task>, task_id: web::Path<String>) -> impl Responder {
-    data.touch();
+async fn update_task(pool: web::Data<DbPool>, data: web::Json<Task>, task_id: web::Path<String>) -> impl Responder {
     match task_repository::update_task_by_id(&pool, data.into_inner(), task_id.to_string()).await {
         Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),

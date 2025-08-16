@@ -72,7 +72,7 @@ pub async fn update_task_by_id(pool: &PgPool, task: Task, task_id: String) -> Re
         "#
     )
         .bind(task.title)
-        .bind(task.updated_at)
+        .bind(Utc::now())
         .bind(task_id)
         .fetch_optional(pool)
         .await?;
