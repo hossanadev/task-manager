@@ -11,7 +11,7 @@ mod constant;
 async fn main() -> std::io::Result<()> {
     let database_url = env::var("DATABASE_URL")
         .expect(constant::error_message::DATABASE_URL_CONNECTION_ERROR_MESSAGE);
-    let base_url = env::var("BASE_URL")
+    let base_url = env::var("BACKEND_BASEURL")
         .expect("BASE_URL env var not set");
 
     let pool = database::init_pool(&database_url)
