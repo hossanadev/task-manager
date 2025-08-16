@@ -11,6 +11,8 @@ mod constant;
 async fn main() -> std::io::Result<()> {
     let database_url = env::var("DATABASE_URL")
         .expect(constant::error_message::DATABASE_URL_CONNECTION_ERROR_MESSAGE);
+    let base_url = env::var("BASE_URL")
+        .expect("BASE_URL env var not set");
 
     let pool = database::init_pool(&database_url)
         .await
@@ -21,8 +23,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pool.clone()))
             .configure(controller::init_routes)
     })
-        .bind(env::var("IP").unwrap().to_string() + ":" +
-            env::var("PORT").unwrap().as_str())?
+        .bind(&base_url)?
         .run()
         .await
 }
