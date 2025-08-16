@@ -17,6 +17,22 @@ pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
     Ok(task)
 }
 
+pub async fn exists_by_task_title(pool: &PgPool, task: &Task) -> Result<bool> {
+    let exists: (bool, ) = sqlx::query_as(
+        r#"
+        SELECT EXISTS
+        (SELECT 1
+        FROM tasks
+        WHERE title = $1)
+        "#
+    )
+        .bind(&task.title)
+        .fetch_one(pool)
+        .await?;
+
+    Ok(exists.0)
+}
+
 pub async fn get_task_by_id(pool: &PgPool, task_id: String) -> Result<Option<Task>> {
     let task = sqlx::query_as::<_, Task>(
         r#"
