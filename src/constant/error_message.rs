@@ -1,7 +1,10 @@
-// DATABASE ERROR MESSAGES
+// baseurl error messages
+pub const BACKEND_BASEURL_ERROR_MESSAGE: &str = "BACKEND_BASEURL env var not set";
+
+// database error messages
 pub const DATABASE_URL_CONNECTION_ERROR_MESSAGE: &str = "Database must be set";
 pub const DATABASE_POOL_CREATION_ERROR_MESSAGE: &str = "Failed to create database pool";
 
-// COMMON ERROR MESSAGES
+// common error messages
 pub const NOT_FOUND_ERROR_MESSAGE: &str = "Not found";
 pub const INTERNAL_SERVER_ERROR_MESSAGE: &str = "Internal server error";
