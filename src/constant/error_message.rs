@@ -1,6 +1,3 @@
-// baseurl error messages
-pub const BACKEND_BASEURL_ERROR_MESSAGE: &str = "BACKEND_BASEURL env var not set";
-
 // database error messages
 pub const DATABASE_URL_CONNECTION_ERROR_MESSAGE: &str = "Database must be set";
 pub const DATABASE_POOL_CREATION_ERROR_MESSAGE: &str = "Failed to create database pool";
