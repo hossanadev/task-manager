@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::Utc;
 use sqlx::PgPool;
 use crate::data::task_model::Task;
 
@@ -7,7 +8,7 @@ pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
         r#"
         INSERT INTO tasks (title)
         VALUES ($1)
-        RETURNING id, title, status
+        RETURNING id, title, status, created_at, updated_at
         "#
     )
         .bind(new_task.title)
@@ -36,7 +37,7 @@ pub async fn exists_by_task_title(pool: &PgPool, task: &Task) -> Result<bool> {
 pub async fn get_task_by_id(pool: &PgPool, task_id: String) -> Result<Option<Task>> {
     let task = sqlx::query_as::<_, Task>(
         r#"
-        SELECT id, title, status
+        SELECT id, title, status, created_at, updated_at
         FROM tasks
         WHERE id = $1
         "#
@@ -51,9 +52,9 @@ pub async fn get_task_by_id(pool: &PgPool, task_id: String) -> Result<Option<Tas
 pub async fn get_tasks(pool: &PgPool) -> Result<Vec<Task>> {
     let tasks = sqlx::query_as::<_, Task>(
         r#"
-        SELECT id, title, status
+        SELECT id, title, status, created_at, updated_at
         FROM tasks
-        ORDER BY id
+        ORDER BY created_at DESC
         "#
     )
         .fetch_all(pool)
@@ -62,15 +63,16 @@ pub async fn get_tasks(pool: &PgPool) -> Result<Vec<Task>> {
     Ok(tasks)
 }
 
-pub async fn update_task_by_id(pool: &PgPool, new_task: Task, task_id: String) -> Result<Option<Task>> {
+pub async fn update_task_by_id(pool: &PgPool, task: Task, task_id: String) -> Result<Option<Task>> {
     let updated_task = sqlx::query_as::<_, Task>(
         r#"
-          UPDATE tasks SET title = $1
-          WHERE id = $2
-          RETURNING id, title, status
+          UPDATE tasks SET title = $1, updated_at = $2
+          WHERE id = $3
+          RETURNING id, title, status, created_at, updated_at
         "#
     )
-        .bind(new_task.title)
+        .bind(task.title)
+        .bind(Utc::now())
         .bind(task_id)
         .fetch_optional(pool)
         .await?;
@@ -81,12 +83,13 @@ pub async fn update_task_by_id(pool: &PgPool, new_task: Task, task_id: String) -
 pub async fn update_status_by_task_id(pool: &PgPool, status: String, task_id: String) -> Result<Option<Task>> {
     let updated_task = sqlx::query_as::<_, Task>(
         r#"
-          UPDATE tasks SET status = $1
-          WHERE id = $2
-          RETURNING id, title, status
+          UPDATE tasks SET status = $1, updated_at = $2
+          WHERE id = $3
+          RETURNING id, title, status, created_at, updated_at
         "#
     )
         .bind(status)
+        .bind(Utc::now())
         .bind(task_id)
         .fetch_optional(pool)
         .await?;
