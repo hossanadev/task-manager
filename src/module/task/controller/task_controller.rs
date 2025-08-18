@@ -1,8 +1,8 @@
 use actix_web::{delete, get, patch, post, put, web, HttpResponse, Responder};
-use crate::database::DbPool;
-use crate::data::task_model::{StatusParam, Task};
-use crate::data::task_repository;
-use crate::dto::response::CustomResponse;
+use crate::data::database::DbPool;
+use crate::module::task::data::task_model::{StatusParam, Task};
+use crate::module::task::data::task_repository;
+use crate::module::task::dto::response::CustomResponse;
 use crate::constant::{success_message, error_message};
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
