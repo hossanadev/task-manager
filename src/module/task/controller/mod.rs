@@ -1,7 +1,7 @@
 use actix_web::web;
 use crate::constant::module_api;
 
-mod task_controller;
+pub mod task_controller;
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     let path = format!("{}{}", module_api::API_VERSION, module_api::TASK_API);

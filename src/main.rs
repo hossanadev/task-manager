@@ -1,9 +1,12 @@
 use actix_web::{web, App, HttpServer};
 use std::env;
 use module::task::{controller, data};
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 mod constant;
 mod module;
+mod documentation;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -26,10 +29,16 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect(constant::error_message::DATABASE_POOL_CREATION_ERROR_MESSAGE);
 
+    let openapi = documentation::task_docs::ApiDoc::openapi();
+
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             .configure(controller::init_routes)
+            .service(
+                SwaggerUi::new("/swagger-ui/{_:.*}")
+                    .url("/api-docs/openapi.json", openapi.clone()),
+            )
     })
         .bind(&bind_address)?
         .run()
