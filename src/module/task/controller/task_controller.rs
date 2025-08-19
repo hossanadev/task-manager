@@ -1,18 +1,24 @@
 use actix_web::{delete, get, patch, post, put, web, HttpResponse, Responder};
-use crate::database::DbPool;
-use crate::data::task_model::{StatusParam, Task};
-use crate::data::task_repository;
-use crate::dto::response::CustomResponse;
+use crate::data::database::DbPool;
+use crate::module::task::data::task_model::{StatusParam, Task};
+use crate::module::task::data::task_repository;
+use crate::module::task::dto::response::CustomResponse;
 use crate::constant::{success_message, error_message};
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
     cfg
+        .service(health_check)
         .service(create_task)
         .service(get_tasks)
         .service(get_task)
         .service(update_task)
         .service(update_status)
         .service(delete_task);
+}
+
+#[get("/health")]
+async fn health_check() -> impl Responder {
+    HttpResponse::Ok().json(CustomResponse::<()>::new(200, "Task API is live", None))
 }
 
 #[post("")]

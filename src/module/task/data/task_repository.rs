@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::Utc;
 use sqlx::PgPool;
-use crate::data::task_model::Task;
+use crate::module::task::data::task_model::Task;
 
 pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
     let task = sqlx::query_as::<_, Task>(
