@@ -7,12 +7,18 @@ use crate::constant::{success_message, error_message};
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
     cfg
+        .service(health_check)
         .service(create_task)
         .service(get_tasks)
         .service(get_task)
         .service(update_task)
         .service(update_status)
         .service(delete_task);
+}
+
+#[get("/health")]
+async fn health_check() -> impl Responder {
+    HttpResponse::Ok().json(CustomResponse::<()>::new(200, "Task API is live", None))
 }
 
 #[post("")]
