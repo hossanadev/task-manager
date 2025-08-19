@@ -1,8 +1,9 @@
 use sqlx::{FromRow, Type};
 use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Serialize, Deserialize, FromRow, ToSchema)]
 pub struct Task {
     pub id: Option<String>,
     pub title: String,
@@ -11,7 +12,7 @@ pub struct Task {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Type)]
+#[derive(Debug, Serialize, Deserialize, Type, ToSchema)]
 #[sqlx(type_name = "text")]
 pub enum TaskStatus {
     NotStarted,
@@ -19,7 +20,7 @@ pub enum TaskStatus {
     Completed,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct StatusParam {
     pub status: String,
 }

@@ -9,3 +9,5 @@ serde = {version = "1", features = ["derive"]}
 anyhow = "1.0.96"
 sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-native-tls", "macros", "migrate", "chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
+utoipa = { version = "5.4.0", features = ["chrono", "macros", "actix_extras"] }
+utoipa-swagger-ui = {version = "9.0.2", features = ["actix-web"]}

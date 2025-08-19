@@ -16,13 +16,32 @@ pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
         .service(delete_task);
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/v1/tasks/health",
+    responses(
+        (status = 200, description = "API is live")
+    ),
+    tag = "Tasks Module"
+)]
 #[get("/health")]
-async fn health_check() -> impl Responder {
+pub async fn health_check() -> impl Responder {
     HttpResponse::Ok().json(CustomResponse::<()>::new(200, "Task API is live", None))
 }
 
+#[utoipa::path(
+    post,
+    path =  "/api/v1/tasks",
+    request_body = Task,
+    responses(
+        (status = 201, description = "Task created successfully", body = CustomResponse<Task>),
+        (status = 409, description = "Task with this title already exists"),
+        (status = 500, description = "Internal server error"),
+    ),
+    tag = "Tasks Module"
+)]
 #[post("")]
-async fn create_task(pool: web::Data<DbPool>, data: web::Json<Task>) -> impl Responder {
+pub async fn create_task(pool: web::Data<DbPool>, data: web::Json<Task>) -> impl Responder {
     match task_repository::exists_by_task_title(&pool, &data).await {
         Ok(true) => {
             return HttpResponse::Conflict().json(CustomResponse::<()>::new(409, "Task with this title already exists", None));
@@ -38,16 +57,38 @@ async fn create_task(pool: web::Data<DbPool>, data: web::Json<Task>) -> impl Res
     }
 }
 
+#[utoipa::path(
+    get,
+    path =  "/api/v1/tasks",
+    responses(
+        (status = 200, description = "Tasks retrieved successfully", body = CustomResponse<Vec<Task>>),
+        (status = 500, description = "Internal server error"),
+    ),
+    tag = "Tasks Module"
+)]
 #[get("")]
-async fn get_tasks(pool: web::Data<DbPool>) -> impl Responder {
+pub async fn get_tasks(pool: web::Data<DbPool>) -> impl Responder {
     match task_repository::get_tasks(&pool).await {
         Ok(tasks) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(tasks))),
         Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/v1/tasks/{id}",
+    params(
+        ("id" = String, Path, description = "Task ID")
+    ),
+    responses(
+        (status = 200, description = "Task retrieved successfully", body = CustomResponse<Task>),
+        (status = 404, description = "Task not found"),
+        (status = 500, description = "Internal server error"),
+    ),
+    tag = "Tasks Module"
+)]
 #[get("{id}")]
-async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl Responder {
+pub async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl Responder {
     match task_repository::get_task_by_id(&pool, task_id.to_string()).await {
         Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
@@ -55,8 +96,22 @@ async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl R
     }
 }
 
+#[utoipa::path(
+    put,
+    path = "/api/v1/tasks/{id}",
+    request_body = Task,
+    params(
+        ("id" = String, Path, description = "Task ID")
+    ),
+    responses(
+        (status = 200, description = "Task updated successfully", body = CustomResponse<Task>),
+        (status = 404, description = "Task not found"),
+        (status = 500, description = "Internal server error"),
+    ),
+    tag = "Tasks Module"
+)]
 #[put("{id}")]
-async fn update_task(pool: web::Data<DbPool>, data: web::Json<Task>, task_id: web::Path<String>) -> impl Responder {
+pub async fn update_task(pool: web::Data<DbPool>, data: web::Json<Task>, task_id: web::Path<String>) -> impl Responder {
     match task_repository::update_task_by_id(&pool, data.into_inner(), task_id.to_string()).await {
         Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
@@ -64,8 +119,22 @@ async fn update_task(pool: web::Data<DbPool>, data: web::Json<Task>, task_id: we
     }
 }
 
+#[utoipa::path(
+    patch,
+    path = "/api/v1/tasks/{id}",
+    params(
+        ("id" = String, Path, description = "Task ID"),
+        ("status" = String, Query, description = "New task status")
+    ),
+    responses(
+        (status = 200, description = "Task status updated successfully", body = CustomResponse<Task>),
+        (status = 404, description = "Task not found"),
+        (status = 500, description = "Internal server error"),
+    ),
+    tag = "Tasks Module"
+)]
 #[patch("{id}")]
-async fn update_status(pool: web::Data<DbPool>, task_id: web::Path<String>, query: web::Query<StatusParam>) -> impl Responder {
+pub async fn update_status(pool: web::Data<DbPool>, task_id: web::Path<String>, query: web::Query<StatusParam>) -> impl Responder {
     match task_repository::update_status_by_task_id(&pool, query.into_inner().status, task_id.to_string()).await {
         Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
@@ -73,8 +142,21 @@ async fn update_status(pool: web::Data<DbPool>, task_id: web::Path<String>, quer
     }
 }
 
+#[utoipa::path(
+    delete,
+    path = "/api/v1/tasks/{id}",
+    params(
+        ("id" = String, Path, description = "Task ID")
+    ),
+    responses(
+        (status = 200, description = "Task deleted successfully"),
+        (status = 404, description = "Task not found"),
+        (status = 500, description = "Internal server error"),
+    ),
+    tag = "Tasks Module"
+)]
 #[delete("{id}")]
-async fn delete_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl Responder {
+pub async fn delete_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl Responder {
     match task_repository::delete_task(&pool, task_id.to_string()).await {
         Ok(rows) if rows > 0 => HttpResponse::Ok().json(CustomResponse::<()>::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, None)),
         Ok(_) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
