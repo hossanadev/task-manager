@@ -26,7 +26,7 @@ pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
 )]
 #[get("/health")]
 pub async fn health_check() -> impl Responder {
-    HttpResponse::Ok().json(CustomResponse::<()>::new(200, "Task API is live", None))
+    HttpResponse::Ok().json(CustomResponse::<String>::new(200, "Task api is alive", Some(String::from("Task API"))))
 }
 
 #[utoipa::path(
