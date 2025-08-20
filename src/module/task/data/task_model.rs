@@ -19,8 +19,3 @@ pub enum TaskStatus {
     InProgress,
     Completed,
 }
-
-#[derive(Debug, Deserialize, ToSchema)]
-pub struct StatusParam {
-    pub status: String,
-}
