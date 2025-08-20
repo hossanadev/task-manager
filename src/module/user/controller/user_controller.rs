@@ -2,7 +2,7 @@ use actix_web::{get, post, web, HttpResponse, Responder};
 use crate::configuration::database::DbPool;
 use crate::constant::{error_message, success_message};
 use crate::common_lib::response::CustomResponse;
-use crate::module::user::controller::user_repository;
+use crate::module::user::data::user_repository;
 use crate::module::user::data::user_model::User;
 
 pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
