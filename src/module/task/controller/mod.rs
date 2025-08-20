@@ -3,7 +3,7 @@ use crate::constant::module_api;
 
 pub mod task_controller;
 
-pub fn init_routes(cfg: &mut web::ServiceConfig) {
+pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
     let path = format!("{}{}", module_api::API_VERSION, module_api::TASK_API);
     cfg.service(web::scope(
              path.as_str())

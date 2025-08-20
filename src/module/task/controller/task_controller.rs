@@ -2,7 +2,7 @@ use actix_web::{delete, get, patch, post, put, web, HttpResponse, Responder};
 use crate::configuration::database::DbPool;
 use crate::module::task::data::task_model::{Task, TaskStatus};
 use crate::module::task::data::task_repository;
-use crate::module::task::dto::response::CustomResponse;
+use crate::common_lib::response::CustomResponse;
 use crate::constant::{success_message, error_message};
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
@@ -26,7 +26,7 @@ pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
 )]
 #[get("/health")]
 pub async fn health_check() -> impl Responder {
-    HttpResponse::Ok().json(CustomResponse::<String>::new(200, "Task api is alive", Some(String::from("Task API"))))
+    HttpResponse::Ok().json(CustomResponse::<String>::new(200, "Task API is alive", Some(String::from("Task API"))))
 }
 
 #[utoipa::path(

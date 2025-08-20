@@ -1,9 +1,9 @@
-use crate::controller::task_controller::{
+use crate::task_controller::task_controller::{
     __path_health_check, __path_create_task, __path_get_tasks, __path_get_task,
     __path_update_task, __path_update_status, __path_delete_task
 };
 use crate::data::task_model::{Task, TaskStatus};
-use crate::module::task::dto::response::CustomResponse;
+use crate::common_lib::response::CustomResponse;
 use utoipa::{OpenApi};
 
 #[derive(OpenApi)]
@@ -18,4 +18,4 @@ use utoipa::{OpenApi};
         (name = "Tasks Module", description = "Task Module API")
     )
 )]
-pub struct ApiDoc;
+pub struct TaskApiDoc;
