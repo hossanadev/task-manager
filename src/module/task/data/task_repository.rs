@@ -1,7 +1,8 @@
+use actix_web::web;
 use anyhow::Result;
 use chrono::Utc;
 use sqlx::PgPool;
-use crate::module::task::data::task_model::Task;
+use crate::module::task::data::task_model::{Task, TaskStatus};
 
 pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
     let task = sqlx::query_as::<_, Task>(
@@ -80,7 +81,7 @@ pub async fn update_task_by_id(pool: &PgPool, task: Task, task_id: String) -> Re
     Ok(updated_task)
 }
 
-pub async fn update_status_by_task_id(pool: &PgPool, status: String, task_id: String) -> Result<Option<Task>> {
+pub async fn update_status_by_task_id(pool: &PgPool, status: web::Query<TaskStatus>, task_id: String) -> Result<Option<Task>> {
     let updated_task = sqlx::query_as::<_, Task>(
         r#"
           UPDATE tasks SET status = $1, updated_at = $2
@@ -88,7 +89,7 @@ pub async fn update_status_by_task_id(pool: &PgPool, status: String, task_id: St
           RETURNING id, title, status, created_at, updated_at
         "#
     )
-        .bind(status)
+        .bind(status.into_inner())
         .bind(Utc::now())
         .bind(task_id)
         .fetch_optional(pool)

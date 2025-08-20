@@ -7,6 +7,7 @@ use utoipa_swagger_ui::SwaggerUi;
 mod constant;
 mod module;
 mod documentation;
+mod configuration;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -25,7 +26,7 @@ async fn main() -> std::io::Result<()> {
 
     let bind_address = format!("{}:{}", host, port);
 
-    let pool = data::database::init_pool(&database_url)
+    let pool = configuration::database::init_pool(&database_url)
         .await
         .expect(constant::error_message::DATABASE_POOL_CREATION_ERROR_MESSAGE);
 

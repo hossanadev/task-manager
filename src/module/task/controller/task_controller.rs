@@ -1,6 +1,6 @@
 use actix_web::{delete, get, patch, post, put, web, HttpResponse, Responder};
-use crate::data::database::DbPool;
-use crate::module::task::data::task_model::{StatusParam, Task};
+use crate::configuration::database::DbPool;
+use crate::module::task::data::task_model::{Task, TaskStatus};
 use crate::module::task::data::task_repository;
 use crate::module::task::dto::response::CustomResponse;
 use crate::constant::{success_message, error_message};
@@ -134,8 +134,8 @@ pub async fn update_task(pool: web::Data<DbPool>, data: web::Json<Task>, task_id
     tag = "Tasks Module"
 )]
 #[patch("{id}")]
-pub async fn update_status(pool: web::Data<DbPool>, task_id: web::Path<String>, query: web::Query<StatusParam>) -> impl Responder {
-    match task_repository::update_status_by_task_id(&pool, query.into_inner().status, task_id.to_string()).await {
+pub async fn update_status(pool: web::Data<DbPool>, task_id: web::Path<String>, status: web::Query<TaskStatus>) -> impl Responder {
+    match task_repository::update_status_by_task_id(&pool, status, task_id.to_string()).await {
         Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
         Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None))
