@@ -4,7 +4,7 @@ use crate::module::task::data::task_model::{Task, TaskStatus};
 use crate::module::task::data::task_repository;
 use crate::common_lib::response::CustomResponse;
 use crate::constant::{success_message, error_message};
-use crate::module::task::dto::request::CreateTaskRequest;
+use crate::module::task::dto::request::{CreateTaskRequest, UpdateTaskRequest, UpdateTaskStatusRequest};
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
     cfg
@@ -100,7 +100,7 @@ pub async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> im
 #[utoipa::path(
     put,
     path = "/api/v1/tasks/{id}",
-    request_body = Task,
+    request_body = UpdateTaskRequest,
     params(
         ("id" = String, Path, description = "Task ID")
     ),
@@ -112,8 +112,8 @@ pub async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> im
     tag = "Tasks Module"
 )]
 #[put("{id}")]
-pub async fn update_task(pool: web::Data<DbPool>, data: web::Json<Task>, task_id: web::Path<String>) -> impl Responder {
-    match task_repository::update_task_by_id(&pool, data.into_inner(), task_id.to_string()).await {
+pub async fn update_task(pool: web::Data<DbPool>, task: web::Json<UpdateTaskRequest>, task_id: web::Path<String>) -> impl Responder {
+    match task_repository::update_task_by_id(&pool, task.into_inner(), task_id.to_string()).await {
         Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
         Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None))
@@ -125,7 +125,7 @@ pub async fn update_task(pool: web::Data<DbPool>, data: web::Json<Task>, task_id
     path = "/api/v1/tasks/{id}",
     params(
         ("id" = String, Path, description = "Task ID"),
-        ("status" = String, Query, description = "New task status")
+        ("status" = TaskStatus, Query, description = "Task status")
     ),
     responses(
         (status = 200, description = "Task status updated successfully", body = CustomResponse<Task>),
@@ -135,8 +135,8 @@ pub async fn update_task(pool: web::Data<DbPool>, data: web::Json<Task>, task_id
     tag = "Tasks Module"
 )]
 #[patch("{id}")]
-pub async fn update_status(pool: web::Data<DbPool>, task_id: web::Path<String>, status: web::Query<TaskStatus>) -> impl Responder {
-    match task_repository::update_status_by_task_id(&pool, status, task_id.to_string()).await {
+pub async fn update_status(pool: web::Data<DbPool>, task_id: web::Path<String>, request: web::Query<UpdateTaskStatusRequest>) -> impl Responder {
+    match task_repository::update_status_by_task_id(&pool, request.into_inner(), task_id.to_string()).await {
         Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
         Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None))
