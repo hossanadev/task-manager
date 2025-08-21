@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Default, Debug, Clone, sqlx::Type, sqlx::FromRow)]
+#[derive(Debug, Serialize, Deserialize, FromRow, ToSchema)]
 pub struct UserDTO {
     pub id: String,
     pub email: String,

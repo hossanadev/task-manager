@@ -5,13 +5,13 @@ use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, FromRow, ToSchema)]
 pub struct User {
-    pub id: Option<String>,
-    pub email: Option<String>,
-    pub username: Option<String>,
-    pub password: Option<String>,
-    pub status: Option<UserStatus>,
-    pub created_at: Option<DateTime<Utc>>,
-    pub updated_at: Option<DateTime<Utc>>,
+    pub id: String,
+    pub email: String,
+    pub username: String,
+    pub password: String,
+    pub status: UserStatus,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Type, ToSchema)]

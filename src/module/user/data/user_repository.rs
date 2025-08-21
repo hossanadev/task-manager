@@ -1,8 +1,8 @@
 use sqlx::PgPool;
-use crate::module::user::data::user_model::{User};
-use crate::module::user::dto::user_dto::UserDTO;
+use crate::module::user::dto::request::CreateUserRequest;
+use crate::module::user::dto::response::UserDTO;
 
-pub async fn create_user(pool: &PgPool, user: User) -> anyhow::Result<UserDTO> {
+pub async fn create_user(pool: &PgPool, user: CreateUserRequest) -> anyhow::Result<UserDTO> {
     let user = sqlx::query_as::<_, UserDTO>(
         r#"
         INSERT INTO users_tm (email, username, password)
