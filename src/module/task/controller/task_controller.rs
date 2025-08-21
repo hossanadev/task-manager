@@ -4,6 +4,7 @@ use crate::module::task::data::task_model::{Task, TaskStatus};
 use crate::module::task::data::task_repository;
 use crate::common_lib::response::CustomResponse;
 use crate::constant::{success_message, error_message};
+use crate::module::task::dto::request::CreateTaskRequest;
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
     cfg
@@ -32,7 +33,7 @@ pub async fn health_check() -> impl Responder {
 #[utoipa::path(
     post,
     path =  "/api/v1/tasks",
-    request_body = Task,
+    request_body = CreateTaskRequest,
     responses(
         (status = 201, description = "Task created successfully", body = CustomResponse<Task>),
         (status = 409, description = "Task with this title already exists"),
@@ -41,8 +42,8 @@ pub async fn health_check() -> impl Responder {
     tag = "Tasks Module"
 )]
 #[post("")]
-pub async fn create_task(pool: web::Data<DbPool>, data: web::Json<Task>) -> impl Responder {
-    match task_repository::exists_by_task_title(&pool, &data).await {
+pub async fn create_task(pool: web::Data<DbPool>, task: web::Json<CreateTaskRequest>) -> impl Responder {
+    match task_repository::exists_by_task_title(&pool, &task).await {
         Ok(true) => {
             return HttpResponse::Conflict().json(CustomResponse::<()>::new(409, "Task with this title already exists", None));
         }
@@ -51,7 +52,7 @@ pub async fn create_task(pool: web::Data<DbPool>, data: web::Json<Task>) -> impl
             return HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None));
         }
     }
-    match task_repository::create_task(&pool, data.into_inner()).await {
+    match task_repository::create_task(&pool, task.into_inner()).await {
         Ok(task) => HttpResponse::Created().json(CustomResponse::new(201, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
