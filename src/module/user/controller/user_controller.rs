@@ -3,7 +3,8 @@ use crate::configuration::database::DbPool;
 use crate::constant::{error_message, success_message};
 use crate::common_lib::response::CustomResponse;
 use crate::module::user::data::user_repository;
-use crate::module::user::data::user_model::User;
+use crate::module::user::dto::request::CreateUserRequest;
+use crate::module::user::dto::response::UserDTO;
 
 pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
     cfg
@@ -28,13 +29,14 @@ async fn health_check() -> impl Responder {
 #[utoipa::path(
     post,
     path = "/api/v1/users",
+    request_body = CreateUserRequest,
     responses(
-        (status = 201, description = "User is created successfully")
+        (status = 201, description = "User is created successfully", body = CustomResponse<UserDTO>)
     ),
     tag = "Users Module"
 )]
 #[post("")]
-async fn create_user(pool: web::Data<DbPool>, user: web::Json<User>) -> impl Responder {
+async fn create_user(pool: web::Data<DbPool>, user: web::Json<CreateUserRequest>) -> impl Responder {
     match user_repository::create_user(&pool, user.into_inner()).await {
         Ok(user) => HttpResponse::Created().json(CustomResponse::new(201, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
         Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None)),
@@ -45,7 +47,7 @@ async fn create_user(pool: web::Data<DbPool>, user: web::Json<User>) -> impl Res
     get,
     path =  "/api/v1/users",
     responses(
-        (status = 200, description = "Users retrieved successfully", body = CustomResponse<Vec<User>>),
+        (status = 200, description = "Users retrieved successfully", body = CustomResponse<Vec<UserDTO>>),
         (status = 500, description = "Internal server error"),
     ),
     tag = "Users Module"
