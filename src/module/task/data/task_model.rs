@@ -5,11 +5,11 @@ use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, FromRow, ToSchema)]
 pub struct Task {
-    pub id: Option<String>,
+    pub id: String,
     pub title: String,
-    pub status: Option<TaskStatus>,
-    pub created_at: Option<DateTime<Utc>>,
-    pub updated_at: Option<DateTime<Utc>>,
+    pub status: TaskStatus,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Type, ToSchema)]
