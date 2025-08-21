@@ -3,8 +3,9 @@ use anyhow::Result;
 use chrono::Utc;
 use sqlx::PgPool;
 use crate::module::task::data::task_model::{Task, TaskStatus};
+use crate::module::task::dto::request::CreateTaskRequest;
 
-pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
+pub async fn create_task(pool: &PgPool, new_task: CreateTaskRequest) -> Result<Task> {
     let task = sqlx::query_as::<_, Task>(
         r#"
         INSERT INTO tasks (title)
@@ -19,7 +20,7 @@ pub async fn create_task(pool: &PgPool, new_task: Task) -> Result<Task> {
     Ok(task)
 }
 
-pub async fn exists_by_task_title(pool: &PgPool, task: &Task) -> Result<bool> {
+pub async fn exists_by_task_title(pool: &PgPool, task: &CreateTaskRequest) -> Result<bool> {
     let exists: (bool, ) = sqlx::query_as(
         r#"
         SELECT EXISTS
