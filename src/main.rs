@@ -3,7 +3,7 @@ use std::env;
 use module::user::{controller as user_controller};
 use module::task::{controller as task_controller, data};
 use utoipa::OpenApi;
-use utoipa_swagger_ui::SwaggerUi;
+use utoipa_swagger_ui::{Config, SwaggerUi};
 
 mod constant;
 mod module;
@@ -45,6 +45,10 @@ async fn main() -> std::io::Result<()> {
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}")
                     .url("/api-docs/openapi.json", user_docs.clone())
+                    .config(
+                        Config::default()
+                            .validator_url("none")
+                    )
             )
     })
         .bind(&bind_address)?
