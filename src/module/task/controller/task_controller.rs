@@ -8,26 +8,12 @@ use crate::module::task::dto::request::{CreateTaskRequest, UpdateTaskRequest, Up
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
     cfg
-        .service(health_check)
         .service(create_task)
         .service(get_tasks)
         .service(get_task)
         .service(update_task)
         .service(update_status)
         .service(delete_task);
-}
-
-#[utoipa::path(
-    get,
-    path = "/api/v1/tasks/health",
-    responses(
-        (status = 200, description = "API is live")
-    ),
-    tag = "Tasks Module"
-)]
-#[get("/health")]
-pub async fn health_check() -> impl Responder {
-    HttpResponse::Ok().json(CustomResponse::<String>::new(200, "Task API is alive", Some(String::from("Task API"))))
 }
 
 #[utoipa::path(

@@ -8,22 +8,8 @@ use crate::module::user::dto::response::UserDTO;
 
 pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
     cfg
-        .service(health_check)
         .service(create_user)
         .service(get_users);
-}
-
-#[utoipa::path(
-    get,
-    path = "/api/v1/users/health",
-    responses(
-        (status = 200, description = "API is live")
-    ),
-    tag = "Users Module"
-)]
-#[get("/health")]
-async fn health_check() -> impl Responder {
-    HttpResponse::Ok().json(CustomResponse::<String>::new(200, "User API is alive", Some(String::from("User API"))))
 }
 
 #[utoipa::path(
