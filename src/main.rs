@@ -9,7 +9,7 @@ mod constant;
 mod module;
 mod documentation;
 mod configuration;
-mod common_lib;
+mod common;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
