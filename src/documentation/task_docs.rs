@@ -3,7 +3,7 @@ use crate::task_controller::task_controller::{
     __path_update_task, __path_update_status, __path_delete_task
 };
 use crate::data::task_model::{Task, TaskStatus};
-use crate::common_lib::response::CustomResponse;
+use crate::common::response::CustomResponse;
 use utoipa::{OpenApi};
 
 #[derive(OpenApi)]

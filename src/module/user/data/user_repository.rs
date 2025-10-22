@@ -32,3 +32,18 @@ pub async fn get_users(pool: &PgPool) -> anyhow::Result<Vec<UserDTO>> {
 
     Ok(users)
 }
+
+pub async fn get_user(pool: &PgPool, user_id: String) -> anyhow::Result<Option<UserDTO>> {
+    let user = sqlx::query_as::<_, UserDTO>(
+        r#"
+        SELECT id, email, username, status
+        FROM users
+        WHERE id = $1
+        "#
+    )
+        .bind(user_id)
+        .fetch_optional(pool)
+        .await?;
+
+    Ok(user)
+}

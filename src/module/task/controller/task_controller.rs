@@ -2,7 +2,7 @@ use actix_web::{delete, get, patch, post, put, web, HttpResponse, Responder};
 use crate::configuration::database::DbPool;
 use crate::module::task::data::task_model::{Task, TaskStatus};
 use crate::module::task::data::task_repository;
-use crate::common_lib::response::CustomResponse;
+use crate::common::response::CustomResponse;
 use crate::constant::{success_message, error_message};
 use crate::module::task::dto::request::{CreateTaskRequest, UpdateTaskRequest, UpdateTaskStatusRequest};
 
