@@ -1,6 +1,6 @@
 use crate::task_controller::task_controller::{
     __path_create_task, __path_get_tasks, __path_get_task,
-    __path_update_task, __path_update_status, __path_delete_task
+    __path_update_task, __path_update_task_status, __path_delete_task
 };
 use crate::data::task_model::{Task, TaskStatus};
 use crate::common::response::CustomResponse;
@@ -9,8 +9,7 @@ use utoipa::{OpenApi};
 #[derive(OpenApi)]
 #[openapi(
     paths(
-       create_task, update_task, delete_task,
-        get_task, get_tasks, update_status),
+       create_task, update_task, delete_task, get_task, get_tasks, update_task_status),
     components(
         schemas(Task, CustomResponse<Task>, TaskStatus)
     ),

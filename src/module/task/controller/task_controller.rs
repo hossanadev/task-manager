@@ -12,7 +12,7 @@ pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
         .service(get_tasks)
         .service(get_task)
         .service(update_task)
-        .service(update_status)
+        .service(update_task_status)
         .service(delete_task);
 }
 
@@ -121,7 +121,7 @@ pub async fn update_task(pool: web::Data<DbPool>, task: web::Json<UpdateTaskRequ
     tag = "Tasks Module"
 )]
 #[patch("{id}")]
-pub async fn update_status(pool: web::Data<DbPool>, task_id: web::Path<String>, request: web::Query<UpdateTaskStatusRequest>) -> impl Responder {
+pub async fn update_task_status(pool: web::Data<DbPool>, task_id: web::Path<String>, request: web::Query<UpdateTaskStatusRequest>) -> impl Responder {
     match task_repository::update_status_by_task_id(&pool, request.into_inner(), task_id.to_string()).await {
         Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
         Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),

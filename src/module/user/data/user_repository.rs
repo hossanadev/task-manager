@@ -1,5 +1,6 @@
+use chrono::Utc;
 use sqlx::PgPool;
-use crate::module::user::dto::request::CreateUserRequest;
+use crate::module::user::dto::request::{CreateUserRequest, UpdateUserRequest, UpdateUserStatusRequest};
 use crate::module::user::dto::response::UserDTO;
 
 pub async fn create_user(pool: &PgPool, user: CreateUserRequest) -> anyhow::Result<UserDTO> {
@@ -46,4 +47,52 @@ pub async fn get_user(pool: &PgPool, user_id: String) -> anyhow::Result<Option<U
         .await?;
 
     Ok(user)
+}
+
+pub async fn update_user(pool: &PgPool, user_id: String, data: UpdateUserRequest) -> anyhow::Result<Option<UserDTO>> {
+    let user = sqlx::query_as::<_, UserDTO>(
+        r#"
+        UPDATE users SET username = $2
+        WHERE id = $1
+        RETURNING id, email, username, status
+        "#
+    )
+        .bind(user_id)
+        .bind(data.username)
+        .fetch_optional(pool)
+        .await?;
+
+    Ok(user)
+}
+
+pub async fn update_status(pool: &PgPool, user_id: String, data: UpdateUserStatusRequest) -> anyhow::Result<Option<UserDTO>> {
+    let user = sqlx::query_as::<_, UserDTO>(
+        r#"
+        UPDATE users SET status = $1, updated_at = $3
+        WHERE id = $2
+        RETURNING id, email, username, status
+        "#
+    )
+        .bind(data.status)
+        .bind(user_id)
+        .bind(Utc::now())
+        .fetch_optional(pool)
+        .await?;
+
+    Ok(user)
+}
+
+pub async fn delete_user(pool: &PgPool, user_id: String) -> anyhow::Result<u64> {
+    let deleted = sqlx::query(
+        r#"
+        DELETE FROM users
+        WHERE id = $1
+        "#
+    )
+        .bind(user_id)
+        .execute(pool)
+        .await?
+        .rows_affected();
+
+    Ok(deleted)
 }
