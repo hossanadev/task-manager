@@ -35,8 +35,8 @@ async fn main() -> std::io::Result<()> {
     let mut user_docs = documentation::user_docs::UserApiDoc::openapi();
     let task_docs = documentation::task_docs::TaskApiDoc::openapi();
 
-    user_docs.info.title = "Seamless Task Manager - STM".to_string();
-    user_docs.info.description = Some("STM is built with Rust Programming - ana22oH d3v.".to_string());
+    user_docs.info.title = "Task Manager - TM".to_string();
+    user_docs.info.description = Some("TM is developed with Rust - ana22oH".to_string());
 
     user_docs.merge(task_docs);
 
