@@ -12,7 +12,7 @@ __path_update_user, __path_update_user_status,__path_delete_user};
         schemas(CustomResponse<UserDTO>, UserStatus)
     ),
     tags(
-        (name = "Users Module", description = "User Module API")
+        (name = "User Module", description = "")
     )
 )]
 pub struct UserApiDoc;

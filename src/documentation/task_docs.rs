@@ -14,7 +14,7 @@ use utoipa::{OpenApi};
         schemas(Task, CustomResponse<Task>, TaskStatus)
     ),
     tags(
-        (name = "Tasks Module", description = "Task Module API")
+        (name = "Task Module", description = "")
     )
 )]
 pub struct TaskApiDoc;

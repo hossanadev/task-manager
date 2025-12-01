@@ -25,7 +25,7 @@ pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
         (status = 409, description = "Task with this title already exists"),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Tasks Module"
+    tag = "Task Module"
 )]
 #[post("")]
 pub async fn create_task(pool: web::Data<DbPool>, task: web::Json<CreateTaskRequest>) -> impl Responder {
@@ -51,7 +51,7 @@ pub async fn create_task(pool: web::Data<DbPool>, task: web::Json<CreateTaskRequ
         (status = 200, description = "Tasks retrieved successfully", body = CustomResponse<Vec<Task>>),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Tasks Module"
+    tag = "Task Module"
 )]
 #[get("")]
 pub async fn get_tasks(pool: web::Data<DbPool>) -> impl Responder {
@@ -72,7 +72,7 @@ pub async fn get_tasks(pool: web::Data<DbPool>) -> impl Responder {
         (status = 404, description = "Task not found"),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Tasks Module"
+    tag = "Task Module"
 )]
 #[get("{id}")]
 pub async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl Responder {
@@ -95,7 +95,7 @@ pub async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> im
         (status = 404, description = "Task not found"),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Tasks Module"
+    tag = "Task Module"
 )]
 #[put("{id}")]
 pub async fn update_task(pool: web::Data<DbPool>, task: web::Json<UpdateTaskRequest>, task_id: web::Path<String>) -> impl Responder {
@@ -118,7 +118,7 @@ pub async fn update_task(pool: web::Data<DbPool>, task: web::Json<UpdateTaskRequ
         (status = 404, description = "Task not found"),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Tasks Module"
+    tag = "Task Module"
 )]
 #[patch("{id}")]
 pub async fn update_task_status(pool: web::Data<DbPool>, task_id: web::Path<String>, request: web::Query<UpdateTaskStatusRequest>) -> impl Responder {
@@ -140,7 +140,7 @@ pub async fn update_task_status(pool: web::Data<DbPool>, task_id: web::Path<Stri
         (status = 404, description = "Task not found"),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Tasks Module"
+    tag = "Task Module"
 )]
 #[delete("{id}")]
 pub async fn delete_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl Responder {

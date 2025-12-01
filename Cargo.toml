@@ -11,3 +11,5 @@ sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-native-tls", 
 chrono = { version = "0.4", features = ["serde"] }
 utoipa = { version = "5.4.0", features = ["chrono", "macros", "actix_extras"] }
 utoipa-swagger-ui = {version = "9.0.2", features = ["actix-web"]}
+tracing = "0.1.43"
+tracing-subscriber = {version = "0.3.22", features = ["fmt", "ansi"]}

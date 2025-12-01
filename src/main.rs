@@ -4,6 +4,7 @@ use module::user::{controller as user_controller};
 use module::task::{controller as task_controller, data};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::{Config, SwaggerUi};
+use tracing::{info};
 
 mod constant;
 mod module;
@@ -13,6 +14,8 @@ mod common;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    tracing_subscriber::fmt().with_ansi(true).init();
+
     let database_url = env::var("DATABASE_URL")
         .expect(constant::error_message::DATABASE_URL_CONNECTION_ERROR_MESSAGE);
 
@@ -31,12 +34,19 @@ async fn main() -> std::io::Result<()> {
     let pool = configuration::database::init_pool(&database_url)
         .await
         .expect(constant::error_message::DATABASE_POOL_CREATION_ERROR_MESSAGE);
+    info!("Database Connection Successful");
+
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("Failed to migrate database");
+    info!("Database Migration Completed");
 
     let mut user_docs = documentation::user_docs::UserApiDoc::openapi();
     let task_docs = documentation::task_docs::TaskApiDoc::openapi();
 
-    user_docs.info.title = "Seamless Task Manager - STM".to_string();
-    user_docs.info.description = Some("STM is built with Rust Programming - ana22oH d3v.".to_string());
+    user_docs.info.title = "Task Manager API".to_string();
+    user_docs.info.description = Some("".to_string());
 
     user_docs.merge(task_docs);
 
@@ -51,10 +61,9 @@ async fn main() -> std::io::Result<()> {
                     .config(
                         Config::default()
                             .validator_url("none")
+                            .doc_expansion("none")
+                            .display_request_duration(true)
                     )
             )
-    })
-        .bind(&bind_address)?
-        .run()
-        .await
+    }).bind(&bind_address)?.run().await
 }

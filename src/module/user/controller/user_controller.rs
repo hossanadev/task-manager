@@ -24,7 +24,7 @@ pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
     responses(
         (status = 201, description = "User is created successfully", body = CustomResponse<UserDTO>)
     ),
-    tag = "Users Module"
+    tag = "User Module"
 )]
 #[post("")]
 async fn create_user(pool: web::Data<DbPool>, user: web::Json<CreateUserRequest>) -> impl Responder {
@@ -41,7 +41,7 @@ async fn create_user(pool: web::Data<DbPool>, user: web::Json<CreateUserRequest>
         (status = 200, description = "Users retrieved successfully", body = CustomResponse<Vec<UserDTO>>),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Users Module"
+    tag = "User Module"
 )]
 #[get("")]
 pub async fn get_users(pool: web::Data<DbPool>) -> impl Responder {
@@ -61,7 +61,7 @@ pub async fn get_users(pool: web::Data<DbPool>) -> impl Responder {
         (status = 200, description = "User retrieved successfully", body = CustomResponse<UserDTO>),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Users Module"
+    tag = "User Module"
 )]
 #[get("{id}")]
 pub async fn get_user(pool: web::Data<DbPool>, user_id: web::Path<String>) -> impl Responder {
@@ -82,7 +82,7 @@ pub async fn get_user(pool: web::Data<DbPool>, user_id: web::Path<String>) -> im
         (status = 200, description = "User updated successfully", body = CustomResponse<UserDTO>),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Users Module"
+    tag = "User Module"
 )]
 #[put("{id}")]
 pub async fn update_user(pool: web::Data<DbPool>, user_id: web::Path<String>, data: web::Json<UpdateUserRequest>) -> impl Responder {
@@ -105,7 +105,7 @@ pub async fn update_user(pool: web::Data<DbPool>, user_id: web::Path<String>, da
         (status = 404, description = "User not found"),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Users Module"
+    tag = "User Module"
 )]
 #[patch("{id}")]
 pub async fn update_user_status(pool: web::Data<DbPool>, user_id: web::Path<String>, data: web::Query<UpdateUserStatusRequest>) -> impl Responder {
@@ -126,7 +126,7 @@ pub async fn update_user_status(pool: web::Data<DbPool>, user_id: web::Path<Stri
         (status = 200, description = "User deleted successfully"),
         (status = 500, description = "Internal server error"),
     ),
-    tag = "Users Module"
+    tag = "User Module"
 )]
 #[delete("{id}")]
 pub async fn delete_user(pool: web::Data<DbPool>, user_id: web::Path<String>) -> impl Responder {
