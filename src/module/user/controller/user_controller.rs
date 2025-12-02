@@ -6,6 +6,7 @@ use crate::module::user::data::user_model::{UserStatus};
 use crate::module::user::data::user_repository;
 use crate::module::user::dto::request::{CreateUserRequest, UpdateUserRequest, UpdateUserStatusRequest};
 use crate::module::user::dto::response::UserDTO;
+use crate::util::password_hasher::hash_password;
 
 pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
     cfg
@@ -28,7 +29,9 @@ pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
 )]
 #[post("")]
 async fn create_user(pool: web::Data<DbPool>, user: web::Json<CreateUserRequest>) -> impl Responder {
-    match user_repository::create_user(&pool, user.into_inner()).await {
+    let mut request = user.into_inner();
+    request.password = hash_password(&request.password);
+    match user_repository::create_user(&pool, request).await {
         Ok(user) => HttpResponse::Created().json(CustomResponse::new(201, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
         Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }

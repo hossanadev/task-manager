@@ -4,12 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4.9.0"
-serde = {version = "1", features = ["derive"]}
-anyhow = "1.0.96"
+actix-web = "4.12.1"
+serde = {version = "1.0.228", features = ["derive"]}
+anyhow = "1.0.100"
 sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-native-tls", "macros", "migrate", "chrono"] }
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4.42", features = ["serde"] }
 utoipa = { version = "5.4.0", features = ["chrono", "macros", "actix_extras"] }
 utoipa-swagger-ui = {version = "9.0.2", features = ["actix-web"]}
 tracing = "0.1.43"
 tracing-subscriber = {version = "0.3.22", features = ["fmt", "ansi"]}
+argon2 = "0.5.3"

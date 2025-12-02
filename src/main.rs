@@ -11,6 +11,7 @@ mod module;
 mod documentation;
 mod configuration;
 mod common;
+mod util;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
