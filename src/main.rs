@@ -6,19 +6,20 @@ use utoipa::OpenApi;
 use utoipa_swagger_ui::{Config, SwaggerUi};
 use tracing::{info};
 
-mod constant;
 mod module;
 mod documentation;
 mod configuration;
-mod common;
 mod util;
+
+const DATABASE_URL_CONNECTION_ERROR_MESSAGE: &str = "Database URL is required";
+const DATABASE_POOL_CREATION_ERROR_MESSAGE: &str = "Database pool connection failed";
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     tracing_subscriber::fmt().with_ansi(true).init();
 
     let database_url = env::var("DATABASE_URL")
-        .expect(constant::error_message::DATABASE_URL_CONNECTION_ERROR_MESSAGE);
+        .expect(DATABASE_URL_CONNECTION_ERROR_MESSAGE);
 
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
 
@@ -34,7 +35,7 @@ async fn main() -> std::io::Result<()> {
 
     let pool = configuration::database::init_pool(&database_url)
         .await
-        .expect(constant::error_message::DATABASE_POOL_CREATION_ERROR_MESSAGE);
+        .expect(DATABASE_POOL_CREATION_ERROR_MESSAGE);
     info!("Database Connection Successful");
 
     sqlx::migrate!("./migrations")

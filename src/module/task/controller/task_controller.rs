@@ -2,9 +2,13 @@ use actix_web::{delete, get, patch, post, put, web, HttpResponse, Responder};
 use crate::configuration::database::DbPool;
 use crate::module::task::data::task_model::{Task, TaskStatus};
 use crate::module::task::data::task_repository;
-use crate::common::response::CustomResponse;
-use crate::constant::{success_message, error_message};
+use crate::util::custom_response::CustomResponse;
 use crate::module::task::dto::request::{CreateTaskRequest, UpdateTaskRequest, UpdateTaskStatusRequest};
+
+const INTERNAL_SERVER_ERROR_MESSAGE: &str = "Internal server error";
+const NOT_FOUND_ERROR_MESSAGE: &str = "Not found";
+const REQUEST_SUCCESSFUL_MESSAGE: &str = "Request successful";
+const DUPLICATE_REQUEST_ERROR_MESSAGE: &str = "Task with this title already exists";
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
     cfg
@@ -31,16 +35,16 @@ pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
 pub async fn create_task(pool: web::Data<DbPool>, task: web::Json<CreateTaskRequest>) -> impl Responder {
     match task_repository::exists_by_task_title(&pool, &task).await {
         Ok(true) => {
-            return HttpResponse::Conflict().json(CustomResponse::<()>::new(409, "Task with this title already exists", None));
+            return HttpResponse::Conflict().json(CustomResponse::<()>::new(409, DUPLICATE_REQUEST_ERROR_MESSAGE, None));
         }
         Ok(false) => {}
         Err(_) => {
-            return HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None));
+            return HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None));
         }
     }
     match task_repository::create_task(&pool, task.into_inner()).await {
-        Ok(task) => HttpResponse::Created().json(CustomResponse::new(201, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None)),
+        Ok(task) => HttpResponse::Created().json(CustomResponse::new(201, "Request successful", Some(task))),
+        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
 
@@ -56,8 +60,8 @@ pub async fn create_task(pool: web::Data<DbPool>, task: web::Json<CreateTaskRequ
 #[get("")]
 pub async fn get_tasks(pool: web::Data<DbPool>) -> impl Responder {
     match task_repository::get_tasks(&pool).await {
-        Ok(tasks) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(tasks))),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None)),
+        Ok(tasks) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(tasks))),
+        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
 
@@ -77,9 +81,9 @@ pub async fn get_tasks(pool: web::Data<DbPool>) -> impl Responder {
 #[get("{id}")]
 pub async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl Responder {
     match task_repository::get_task_by_id(&pool, task_id.to_string()).await {
-        Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
-        Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None))
+        Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
+        Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, NOT_FOUND_ERROR_MESSAGE, None)),
+        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None))
     }
 }
 
@@ -100,9 +104,9 @@ pub async fn get_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> im
 #[put("{id}")]
 pub async fn update_task(pool: web::Data<DbPool>, task: web::Json<UpdateTaskRequest>, task_id: web::Path<String>) -> impl Responder {
     match task_repository::update_task_by_id(&pool, task.into_inner(), task_id.to_string()).await {
-        Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
-        Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None))
+        Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
+        Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, NOT_FOUND_ERROR_MESSAGE, None)),
+        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None))
     }
 }
 
@@ -123,9 +127,9 @@ pub async fn update_task(pool: web::Data<DbPool>, task: web::Json<UpdateTaskRequ
 #[patch("{id}")]
 pub async fn update_task_status(pool: web::Data<DbPool>, task_id: web::Path<String>, request: web::Query<UpdateTaskStatusRequest>) -> impl Responder {
     match task_repository::update_status_by_task_id(&pool, request.into_inner(), task_id.to_string()).await {
-        Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
-        Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None))
+        Ok(Some(task)) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(task))),
+        Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, NOT_FOUND_ERROR_MESSAGE, None)),
+        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None))
     }
 }
 
@@ -145,8 +149,8 @@ pub async fn update_task_status(pool: web::Data<DbPool>, task_id: web::Path<Stri
 #[delete("{id}")]
 pub async fn delete_task(pool: web::Data<DbPool>, task_id: web::Path<String>) -> impl Responder {
     match task_repository::delete_task(&pool, task_id.to_string()).await {
-        Ok(rows) if rows > 0 => HttpResponse::Ok().json(CustomResponse::<()>::new(200, success_message::REQUEST_SUCCESSFUL_MESSAGE, None)),
-        Ok(_) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, error_message::NOT_FOUND_ERROR_MESSAGE, None)),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, error_message::INTERNAL_SERVER_ERROR_MESSAGE, None)),
+        Ok(rows) if rows > 0 => HttpResponse::Ok().json(CustomResponse::<()>::new(200, REQUEST_SUCCESSFUL_MESSAGE, None)),
+        Ok(_) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, NOT_FOUND_ERROR_MESSAGE, None)),
+        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
