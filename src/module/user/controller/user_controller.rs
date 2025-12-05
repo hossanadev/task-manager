@@ -1,15 +1,12 @@
 use actix_web::{delete, get, patch, post, put, web, HttpResponse, Responder};
-use tracing::error;
 use crate::configuration::database::DbPool;
 use crate::util::custom_response::CustomResponse;
 use crate::module::user::data::user_model::{UserStatus};
-use crate::module::user::data::user_repository;
 use crate::module::user::dto::request::{CreateUserRequest, UpdateUserRequest, UpdateUserStatusRequest};
 use crate::module::user::dto::response::UserDTO;
-use crate::util::password_hasher::hash_password;
+use crate::module::user::service::user_service::UserService;
 
 pub const INTERNAL_SERVER_ERROR_MESSAGE: &str = "Internal server error";
-pub const NOT_FOUND_ERROR_MESSAGE: &str = "Not found";
 pub const REQUEST_SUCCESSFUL_MESSAGE: &str = "Request successful";
 
 pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
@@ -32,18 +29,14 @@ pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
     tag = "User Module"
 )]
 #[post("")]
-async fn create_user(pool: web::Data<DbPool>, user: web::Json<CreateUserRequest>) -> impl Responder {
-    let mut request = user.into_inner();
-    match hash_password(&request.password) {
-        Ok(hashed_password) => request.password = hashed_password,
-        Err(err) => {
-            error!("Error Hashing Password {:?}", err);
-            return HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None))
-        }
-    }
-    match user_repository::create_user(&pool, request).await {
-        Ok(user) => HttpResponse::Created().json(CustomResponse::new(201, REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
+async fn create_user(pool: web::Data<DbPool>, request: web::Json<CreateUserRequest>) -> impl Responder {
+    match UserService::create_user(&pool, request.into_inner()).await {
+        Ok(user) =>
+            HttpResponse::Created()
+                .json(CustomResponse::new(201, REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
+        Err(_) =>
+            HttpResponse::InternalServerError()
+                .json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
 
@@ -58,9 +51,13 @@ async fn create_user(pool: web::Data<DbPool>, user: web::Json<CreateUserRequest>
 )]
 #[get("")]
 pub async fn get_users(pool: web::Data<DbPool>) -> impl Responder {
-    match user_repository::get_users(&pool).await {
-        Ok(users) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(users))),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
+    match UserService::get_users(pool).await {
+        Ok(users) =>
+            HttpResponse::Ok()
+                .json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(users))),
+        Err(_) =>
+            HttpResponse::InternalServerError()
+                .json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
 
@@ -78,9 +75,13 @@ pub async fn get_users(pool: web::Data<DbPool>) -> impl Responder {
 )]
 #[get("{id}")]
 pub async fn get_user(pool: web::Data<DbPool>, user_id: web::Path<String>) -> impl Responder {
-    match user_repository::get_user(&pool, user_id.to_string()).await {
-        Ok(user) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
+    match UserService::get_user(pool, user_id).await {
+        Ok(user) =>
+            HttpResponse::Ok()
+                .json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
+        Err(_) =>
+            HttpResponse::InternalServerError()
+                .json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
 
@@ -99,10 +100,13 @@ pub async fn get_user(pool: web::Data<DbPool>, user_id: web::Path<String>) -> im
 )]
 #[put("{id}")]
 pub async fn update_user(pool: web::Data<DbPool>, user_id: web::Path<String>, data: web::Json<UpdateUserRequest>) -> impl Responder {
-    match user_repository::update_user(&pool, user_id.to_string(), data.into_inner()).await {
-        Ok(Some(user)) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
-        Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, NOT_FOUND_ERROR_MESSAGE, None)),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
+    match UserService::update_user(pool, user_id, data).await {
+        Ok(user) =>
+            HttpResponse::Ok()
+                .json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
+        Err(_) =>
+            HttpResponse::InternalServerError()
+                .json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
 
@@ -122,10 +126,13 @@ pub async fn update_user(pool: web::Data<DbPool>, user_id: web::Path<String>, da
 )]
 #[patch("{id}")]
 pub async fn update_user_status(pool: web::Data<DbPool>, user_id: web::Path<String>, data: web::Query<UpdateUserStatusRequest>) -> impl Responder {
-    match user_repository::update_status(&pool, user_id.to_string(), data.into_inner()).await {
-        Ok(Some(user)) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
-        Ok(None) => HttpResponse::NotFound().json(CustomResponse::<()>::new(404, NOT_FOUND_ERROR_MESSAGE, None)),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
+    match UserService::update_user_status(pool, user_id, data).await {
+        Ok(user) =>
+            HttpResponse::Ok()
+                .json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(user))),
+        Err(_) =>
+            HttpResponse::InternalServerError()
+                .json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
 
@@ -143,8 +150,12 @@ pub async fn update_user_status(pool: web::Data<DbPool>, user_id: web::Path<Stri
 )]
 #[delete("{id}")]
 pub async fn delete_user(pool: web::Data<DbPool>, user_id: web::Path<String>) -> impl Responder {
-    match user_repository::delete_user(&pool, user_id.to_string()).await {
-        Ok(u64) => HttpResponse::Ok().json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(u64))),
-        Err(_) => HttpResponse::InternalServerError().json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
+    match UserService::delete_user(pool, user_id).await {
+        Ok(u64) =>
+            HttpResponse::Ok()
+                .json(CustomResponse::new(200, REQUEST_SUCCESSFUL_MESSAGE, Some(u64))),
+        Err(_) =>
+            HttpResponse::InternalServerError()
+                .json(CustomResponse::<()>::new(500, INTERNAL_SERVER_ERROR_MESSAGE, None)),
     }
 }
