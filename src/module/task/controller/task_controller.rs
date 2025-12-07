@@ -4,18 +4,26 @@ use crate::module::task::data::task_model::{Task, TaskStatus};
 use crate::util::custom_response::CustomResponse;
 use crate::module::task::dto::request::{CreateTaskRequest, UpdateTaskRequest, UpdateTaskStatusRequest};
 use crate::module::task::service::task_service::TaskService;
+use crate::util::auth_middleware::AuthMiddleware;
 
 const INTERNAL_SERVER_ERROR_MESSAGE: &str = "Internal server error";
 const REQUEST_SUCCESSFUL_MESSAGE: &str = "Request successful";
+const API_VERSION: &str = "/api/v1/";
+const TASK_API: &str = "tasks";
 
 pub fn init_task_routes(cfg: &mut web::ServiceConfig) {
-    cfg
-        .service(create_task)
-        .service(get_tasks)
-        .service(get_task)
-        .service(update_task)
-        .service(update_task_status)
-        .service(delete_task);
+    let path = format!("{}{}", API_VERSION, TASK_API);
+    cfg.service(
+        web::scope(
+            path.as_str())
+            .wrap(AuthMiddleware)
+            .service(create_task)
+            .service(get_tasks)
+            .service(get_task)
+            .service(update_task)
+            .service(update_task_status)
+            .service(delete_task)
+    );
 }
 
 #[utoipa::path(

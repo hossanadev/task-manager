@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sqlx::{Type};
+use sqlx::{FromRow, Type};
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, Type, ToSchema)]
@@ -7,4 +7,13 @@ use utoipa::ToSchema;
 pub enum UserStatus {
     Active,
     Inactive
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, ToSchema)]
+pub struct User {
+    pub id: String,
+    pub email: String,
+    pub username: String,
+    pub status: String,
+    pub password: String
 }
