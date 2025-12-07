@@ -14,3 +14,5 @@ utoipa-swagger-ui = {version = "9.0.2", features = ["actix-web"]}
 tracing = "0.1.43"
 tracing-subscriber = {version = "0.3.22", features = ["fmt", "ansi"]}
 argon2 = "0.5.3"
+jsonwebtoken = { version = "10", features = ["rust_crypto"] }
+futures-util = "0.3.31"

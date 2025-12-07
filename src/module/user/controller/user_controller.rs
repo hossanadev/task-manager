@@ -5,18 +5,25 @@ use crate::module::user::data::user_model::{UserStatus};
 use crate::module::user::dto::request::{CreateUserRequest, UpdateUserRequest, UpdateUserStatusRequest};
 use crate::module::user::dto::response::UserDTO;
 use crate::module::user::service::user_service::UserService;
+use crate::util::auth_middleware::AuthMiddleware;
 
 pub const INTERNAL_SERVER_ERROR_MESSAGE: &str = "Internal server error";
 pub const REQUEST_SUCCESSFUL_MESSAGE: &str = "Request successful";
+const API_VERSION: &str = "/api/v1/";
+const USER_API: &str = "users";
 
 pub fn init_user_routes(cfg: &mut web::ServiceConfig) {
-    cfg
-        .service(create_user)
-        .service(get_user)
-        .service(get_users)
-        .service(update_user)
-        .service(update_user_status)
-        .service(delete_user);
+    let path = format!("{}{}", API_VERSION, USER_API);
+    cfg.service(
+        web::scope(path.as_str())
+            .wrap(AuthMiddleware)
+            .service(create_user)
+            .service(get_user)
+            .service(get_users)
+            .service(update_user)
+            .service(update_user_status)
+            .service(delete_user)
+    );
 }
 
 #[utoipa::path(
